@@ -2,8 +2,8 @@
 # GLOBALS                                                                       #
 #################################################################################
 
-PROJECT_NAME = LR5
-PYTHON_VERSION = 3.11
+PROJECT_NAME = mlops
+PYTHON_VERSION = 3.10
 PYTHON_INTERPRETER = python
 
 #################################################################################
@@ -29,31 +29,24 @@ clean:
 ## Lint using flake8 and black (use `make format` to do formatting)
 .PHONY: lint
 lint:
-	flake8 lr5
-	isort --check --diff --profile black lr5
-	black --check --config pyproject.toml lr5
+	flake8 mlops
+	isort --check --diff --profile black mlops
+	black --check --config pyproject.toml mlops
 
 ## Format source code with black
 .PHONY: format
 format:
-	black --config pyproject.toml lr5
+	black --config pyproject.toml mlops
 
 
-## Download Data from storage system
-.PHONY: sync_data_down
-sync_data_down:
-	aws s3 sync s3://bucket-name/data/ \
-		data/ 
+
+
+## Set up python interpreter environment
+.PHONY: create_environment
+create_environment:
+	@bash -c "if [ ! -z `which virtualenvwrapper.sh` ]; then source `which virtualenvwrapper.sh`; mkvirtualenv $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER); else mkvirtualenv.bat $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER); fi"
+	@echo ">>> New virtualenv created. Activate with:\nworkon $(PROJECT_NAME)"
 	
-
-## Upload Data to storage system
-.PHONY: sync_data_up
-sync_data_up:
-	aws s3 sync data/ \
-		s3://bucket-name/data 
-	
-
-
 
 
 
@@ -61,11 +54,6 @@ sync_data_up:
 # PROJECT RULES                                                                 #
 #################################################################################
 
-
-## Make Dataset
-.PHONY: data
-data: requirements
-	$(PYTHON_INTERPRETER) lr5/dataset.py
 
 
 #################################################################################
